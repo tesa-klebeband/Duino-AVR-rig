@@ -103,8 +103,7 @@ int setup_connection(sockaddr_in *node_addr, int *sock, std::string *node_name)
 
     if (connect(*sock, (struct sockaddr *)node_addr, sizeof(*node_addr)) < 0)
     {
-        fprintf(stderr, "No response from mining node!\n");
-        exit(1);
+        return 0;
     }
 
     return 1;
@@ -214,7 +213,7 @@ void mine_avr(Config *config, int avr_num)
             fprintf(stderr, "x Rejected");
         }
 
-        fprintf(stderr, " %d/%d %d H/s ⚙ diff %d\n", num_good_shares, num_shares, config->hashrate, diff);
+        fprintf(stderr, " %d/%d ⚙ %d H/s diff %d ⚙ Total Hashing power: %.1f kH/s\n", num_good_shares, num_shares, config->hashrate, diff, (float) (config->hashrate * config->num_avrs) / 1000.0);
     }
 }
 
