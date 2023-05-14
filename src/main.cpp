@@ -149,6 +149,7 @@ void mine_avr(Config *config, int avr_num)
     std::string node_name;
     int num_shares = 0;
     int num_good_shares = 0;
+    float total_hashing_power = (config->hashrate * config->num_avrs) / 1000.0;
     char DUCOID[23];
 
     while(!setup_connection(&node_addr, &sock, &node_name))
@@ -213,7 +214,7 @@ void mine_avr(Config *config, int avr_num)
             fprintf(stderr, "x Rejected");
         }
 
-        fprintf(stderr, " %d/%d ⚙ %d H/s diff %d ⚙ Total Hashing power: %.1f kH/s\n", num_good_shares, num_shares, config->hashrate, diff, (float) (config->hashrate * config->num_avrs) / 1000.0);
+        fprintf(stderr, " %d/%d ⚙ %d H/s diff %d ⚙ Total Hashing power: %.1f kH/s\n", num_good_shares, num_shares, config->hashrate, diff, total_hashing_power);
     }
 }
 
