@@ -222,7 +222,7 @@ int main(int argc, char **argv)
 {
     if (argc < 6)
     {
-        fprintf(stderr, "Usage: duino-avr-rig [WALLET_ADDR] [MINING_KEY] [HASHRATE] [RIG_NAME] [NUM_AVRS]");
+        fprintf(stderr, "Usage: duino-avr-rig [WALLET_ADDR] [MINING_KEY] [HASHRATE] [RIG_NAME] [NUM_AVRS]\n");
         exit(0);
     }
 
