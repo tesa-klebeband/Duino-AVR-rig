@@ -13,13 +13,17 @@ To build Duino-AVR-rig navigate to the root of this project and run `make`. All 
 
 
 ## Using Duino-AVR-rig
-`build/duino-avr-rig Username MiningKey Hashrate RigIdentifier MinerThreads`
+`build/duino-avr-rig wallet.txt`
 
-* Replace the first argument with your username
-* Replace the second argument with your mining key (or "None")
-* Replace the third argument with the desired hashrate of each worker in H/s
-* Replace the fourth argument with a rig identifier (or "None")
-* Replace the fifth argument with the number of AVRs
+* Replace the first argument with the config file
+
+## Writing a config file
+The multi account configuration file is pretty straightforward. 
+
+* Each line configures the parameters for one account
+* Every parameter is split by '?'
+
+To make your own, copy or just edit the example config `wallets.txt` and adjust it to your liking.
 
 ## License
 All files within this repo are released under the GNU GPL V3 License as per the LICENSE file stored in the root of this repo.
