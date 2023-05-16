@@ -10,6 +10,7 @@
 #include <openssl/sha.h>
 #include <thread>
 #include <ctime>
+#include <fstream>
 
 struct Config
 {
@@ -154,11 +155,11 @@ void mine_avr(Config *config, int avr_num)
 
     while(!setup_connection(&node_addr, &sock, &node_name))
     {
-        fprintf(stderr, "AVR-%03d: Unable to setup mining node! Retrying in 5s\n", avr_num);
+        fprintf(stderr, "%s/%03d: Unable to setup mining node! Retrying in 5s\n", config->wallet_address, avr_num);
         usleep(5000000);
     }
 
-    fprintf(stderr, "AVR-%03d: Connected to %s!\n", avr_num, node_name.c_str());
+    fprintf(stderr, "%s/%03d: Connected to %s!\n", config->wallet_address, avr_num, node_name.c_str());
 
     char version[6];
     char motd[1024];
@@ -167,7 +168,7 @@ void mine_avr(Config *config, int avr_num)
     send(sock, "MOTD", 4, 0);
     recv(sock, motd, 1024, 0);
 
-    fprintf(stderr, "AVR-%03d: Server message of the day: %s\n", avr_num, motd);
+    fprintf(stderr, "%s/%03d: Server message of the day: %s\n", config->wallet_address, avr_num, motd);
 
     std::srand(std::time(nullptr));
     int uuid1 = std::rand();
@@ -204,7 +205,7 @@ void mine_avr(Config *config, int avr_num)
         char feedback[64];
         recv(sock, feedback, 64, 0);
 
-        fprintf(stderr, "AVR-%03d: ", avr_num);
+        fprintf(stderr, "%s/%03d: ", config->wallet_address, avr_num);
 
         if (strcmp(feedback, "GOOD") != 0)
         {
@@ -218,38 +219,87 @@ void mine_avr(Config *config, int avr_num)
     }
 }
 
+void account_thread(Config *config)
+{
+    if (!check_wallet(config))
+    {
+        fprintf(stderr, "Invalid wallet address: %s\n", config->wallet_address);
+        exit(1);
+    }
+
+    if (!check_mining_key(config))
+    {
+        fprintf(stderr, "Invalid mining key: %s\n", config->mining_key);
+        exit(1);
+    }
+
+    std::thread miners[config->num_avrs];
+    for (int i = 0; i < config->num_avrs; i++)
+    {
+        miners[i] = std::thread(mine_avr, config, i + 1);
+        miners[i].detach();
+    }
+}
+
 int main(int argc, char **argv)
 {
-    if (argc < 6)
+    if (argc < 2)
     {
-        fprintf(stderr, "Usage: duino-avr-rig [WALLET_ADDR] [MINING_KEY] [HASHRATE] [RIG_NAME] [NUM_AVRS]\n");
+        fprintf(stderr, "Usage: duino-avr-rig [CONFIG]\n");
         exit(0);
     }
 
-    Config config;
-    config.wallet_address = argv[1];
-    config.mining_key = argv[2];
-    config.hashrate = atoi(argv[3]);
-    config.rig_name = argv[4];
-    config.hash_time = 1000 / config.hashrate;
-    config.num_avrs = atoi(argv[5]);
-    if (!check_wallet(&config))
+    std::ifstream config_file(argv[1]);
+    if (!config_file)
     {
-        fprintf(stderr, "Invalid wallet address!\n");
+        fprintf(stderr, "Cannot open configuration file: %s\n", argv[1]);
         exit(1);
     }
 
-    if (!check_mining_key(&config))
+    config_file.seekg(0, std::ios::end);
+    if (config_file.tellg() == 0)
     {
-        fprintf(stderr, "Invalid mining key!\n");
+        fprintf(stderr, "Attempted to read an empty config file\n");
         exit(1);
     }
 
-    std::thread miners[config.num_avrs];
-    for (int i = 0; i < config.num_avrs; i++)
+    config_file.seekg(0, std::ios::beg);
+    std::string config_entry[256];
+    int entry_count = 0;
+    while (std::getline(config_file, config_entry[entry_count]))
     {
-        miners[i] = std::thread(mine_avr, &config, i + 1);
-        miners[i].detach();
+        entry_count++;
+    }
+
+    Config config[entry_count];
+
+    for (int i = 0; i < entry_count; i++)
+    {
+        std::string temp = config_entry[i].substr(0);
+        config[i].wallet_address = (char*) malloc(temp.substr(0, temp.find("?")).length());
+        strcpy(config[i].wallet_address, temp.substr(0, temp.find("?")).c_str());
+
+        temp = temp.substr(temp.find("?") + 1);
+        config[i].mining_key = (char*) malloc(temp.substr(0, temp.find("?")).length());
+        strcpy(config[i].mining_key, temp.substr(0, temp.find("?")).c_str());
+
+        temp = temp.substr(temp.find("?") + 1);
+        config[i].hashrate = atoi(temp.substr(0, temp.find("?")).c_str());
+        config[i].hash_time = 1000 / config[i].hashrate;
+
+        temp = temp.substr(temp.find("?") + 1);
+        config[i].rig_name = (char*) malloc(temp.substr(0, temp.find("?")).length());
+        strcpy(config[i].rig_name, temp.substr(0, temp.find("?")).c_str());
+
+        temp = temp.substr(temp.find("?") + 1);
+        config[i].num_avrs = atoi(temp.substr(0, temp.find("?")).c_str());
+    }
+
+    std::thread account_threads[entry_count];
+    for (int i = 0; i < entry_count; i++)
+    {
+        account_threads[i] = std::thread(account_thread, &config[i]);
+        account_threads[i].detach();
     }
 
     while(1);
