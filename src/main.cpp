@@ -12,6 +12,8 @@
 #include <ctime>
 #include <fstream>
 
+#define CONF_DELIMITER " "
+
 struct Config
 {
     char *wallet_address;
@@ -276,23 +278,23 @@ int main(int argc, char **argv)
     for (int i = 0; i < entry_count; i++)
     {
         std::string temp = config_entry[i].substr(0);
-        config[i].wallet_address = (char*) malloc(temp.substr(0, temp.find("?")).length());
-        strcpy(config[i].wallet_address, temp.substr(0, temp.find("?")).c_str());
+        config[i].wallet_address = (char*) malloc(temp.substr(0, temp.find(CONF_DELIMITER)).length());
+        strcpy(config[i].wallet_address, temp.substr(0, temp.find(CONF_DELIMITER)).c_str());
 
-        temp = temp.substr(temp.find("?") + 1);
-        config[i].mining_key = (char*) malloc(temp.substr(0, temp.find("?")).length());
-        strcpy(config[i].mining_key, temp.substr(0, temp.find("?")).c_str());
+        temp = temp.substr(temp.find(CONF_DELIMITER) + 1);
+        config[i].mining_key = (char*) malloc(temp.substr(0, temp.find(CONF_DELIMITER)).length());
+        strcpy(config[i].mining_key, temp.substr(0, temp.find(CONF_DELIMITER)).c_str());
 
-        temp = temp.substr(temp.find("?") + 1);
-        config[i].hashrate = atoi(temp.substr(0, temp.find("?")).c_str());
+        temp = temp.substr(temp.find(CONF_DELIMITER) + 1);
+        config[i].hashrate = atoi(temp.substr(0, temp.find(CONF_DELIMITER)).c_str());
         config[i].hash_time = 1000 / config[i].hashrate;
 
-        temp = temp.substr(temp.find("?") + 1);
-        config[i].rig_name = (char*) malloc(temp.substr(0, temp.find("?")).length());
-        strcpy(config[i].rig_name, temp.substr(0, temp.find("?")).c_str());
+        temp = temp.substr(temp.find(CONF_DELIMITER) + 1);
+        config[i].rig_name = (char*) malloc(temp.substr(0, temp.find(CONF_DELIMITER)).length());
+        strcpy(config[i].rig_name, temp.substr(0, temp.find(CONF_DELIMITER)).c_str());
 
-        temp = temp.substr(temp.find("?") + 1);
-        config[i].num_avrs = atoi(temp.substr(0, temp.find("?")).c_str());
+        temp = temp.substr(temp.find(CONF_DELIMITER) + 1);
+        config[i].num_avrs = atoi(temp.substr(0, temp.find(CONF_DELIMITER)).c_str());
     }
 
     std::thread account_threads[entry_count];
