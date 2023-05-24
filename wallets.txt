@@ -1,1 +1,1 @@
-wallet_addr?mining_key?hashrate?rig_identifier?number_of_avrs
+wallet_addr mining_key hashrate rig_identifier number_of_avrs
