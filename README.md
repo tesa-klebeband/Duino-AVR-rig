@@ -21,7 +21,7 @@ To build Duino-AVR-rig navigate to the root of this project and run `make`. All 
 The multi account configuration file is pretty straightforward. 
 
 * Each line configures the parameters for one account
-* Every parameter is split by '?'
+* Every parameter is split by ' '
 
 To make your own, copy or just edit the example config `wallets.txt` and adjust it to your liking.
 
