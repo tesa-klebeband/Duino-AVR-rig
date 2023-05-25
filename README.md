@@ -13,7 +13,7 @@ To build Duino-AVR-rig navigate to the root of this project and run `make`. All 
 
 
 ## Using Duino-AVR-rig
-`build/duino-avr-rig wallet.txt`
+`build/duino-avr-rig wallets.txt`
 
 * Replace the first argument with the config file
 
