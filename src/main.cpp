@@ -265,19 +265,28 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    config_file.seekg(0, std::ios::beg);
-    std::string config_entry[256];
+    std::string temp;
     int entry_count = 0;
-    while (std::getline(config_file, config_entry[entry_count]))
+
+    config_file.seekg(0, std::ios::beg);
+
+    while (std::getline(config_file, temp))
     {
         entry_count++;
     }
 
+    std::string config_entry[entry_count];
     Config config[entry_count];
+
+    config_file.clear();
+    config_file.seekg(0, std::ios::beg);
 
     for (int i = 0; i < entry_count; i++)
     {
-        std::string temp = config_entry[i].substr(0);
+        std::getline(config_file, config_entry[i]);
+        std::cout << "ENTRY: "<< config_entry[i] << '\n' << std::flush;
+
+        std::string temp = config_entry[i];
         config[i].wallet_address = (char*) malloc(temp.substr(0, temp.find(CONF_DELIMITER)).length());
         strcpy(config[i].wallet_address, temp.substr(0, temp.find(CONF_DELIMITER)).c_str());
 
