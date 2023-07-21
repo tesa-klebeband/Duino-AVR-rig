@@ -284,7 +284,6 @@ int main(int argc, char **argv)
     for (int i = 0; i < entry_count; i++)
     {
         std::getline(config_file, config_entry[i]);
-        std::cout << "ENTRY: "<< config_entry[i] << '\n' << std::flush;
 
         std::string temp = config_entry[i];
         config[i].wallet_address = (char*) malloc(temp.substr(0, temp.find(CONF_DELIMITER)).length());
